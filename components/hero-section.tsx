@@ -4,7 +4,7 @@ import { WaitlistForm } from "./waitlist-form"
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-black">
-      {/* Purple gradient background */}
+      
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-background to-background" />
 
       {/* Animated circles */}
@@ -52,7 +52,7 @@ export function HeroSection() {
             <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-indigo-900 opacity-90" />
             <div className="absolute inset-0 flex items-center justify-center">
               <Image
-                src="/placeholder.svg?height=500&width=500"
+                src="/blend.jpg?height=500&width=500"
                 width={500}
                 height={500}
                 alt="Spotify Blend visualization"

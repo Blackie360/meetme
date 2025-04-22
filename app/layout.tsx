@@ -4,7 +4,7 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'blend it',
   description: 'Created with love',
-  generator: 'blend it',
+  
 }
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>{children}</body>
     </html>
   )
