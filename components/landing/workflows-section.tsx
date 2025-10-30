@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "lucide-react";
+import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ export function WorkflowsSection({ workflows }: WorkflowsSectionProps) {
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 {workflow.bullets.map((bullet) => (
                   <div key={bullet} className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 size-4 text-primary" />
+                    <Icon icon="lucide:check-circle-2" className="mt-0.5 size-4 text-primary" />
                     <span>{bullet}</span>
                   </div>
                 ))}

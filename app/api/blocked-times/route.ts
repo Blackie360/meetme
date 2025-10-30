@@ -1,15 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import { eq, and, gte, lte } from "drizzle-orm";
-import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 
-import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { blockedTimes, bookingLinks } from "@/db/schema";
+import { getServerAuthSession } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getServerAuthSession();
 
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -54,7 +53,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getServerAuthSession();
 
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -104,7 +103,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getServerAuthSession();
 
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -128,10 +127,7 @@ export async function DELETE(request: NextRequest) {
         userId: bookingLinks.userId,
       })
       .from(blockedTimes)
-      .innerJoin(
-        bookingLinks,
-        eq(blockedTimes.bookingLinkId, bookingLinks.id),
-      )
+      .innerJoin(bookingLinks, eq(blockedTimes.bookingLinkId, bookingLinks.id))
       .where(eq(blockedTimes.id, blockedTimeId))
       .limit(1);
 
@@ -150,4 +146,3 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
-

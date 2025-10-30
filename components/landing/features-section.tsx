@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "lucide-react";
+import { Icon } from "@iconify/react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -36,7 +36,7 @@ export function FeaturesSection({ features }: FeaturesSectionProps) {
           >
             <CardHeader className="gap-4">
               <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <feature.icon className="size-6" />
+                <Icon icon={feature.icon} className="size-6" />
               </div>
               <div className="space-y-2">
                 <CardTitle className="text-xl font-semibold">
@@ -50,7 +50,7 @@ export function FeaturesSection({ features }: FeaturesSectionProps) {
             <CardContent className="space-y-3 text-sm text-muted-foreground">
               {feature.bullets.map((bullet) => (
                 <div key={bullet} className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 size-4 text-primary" />
+                  <Icon icon="lucide:check-circle-2" className="mt-0.5 size-4 text-primary" />
                   <span>{bullet}</span>
                 </div>
               ))}

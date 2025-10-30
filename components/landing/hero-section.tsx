@@ -1,4 +1,4 @@
-import { MessageSquare, ShieldCheck } from "lucide-react";
+import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,7 +29,7 @@ type HeroSectionProps = {
 };
 
 export function HeroSection({ stats, slots, date }: HeroSectionProps) {
-  const PrimaryIcon = heroCta.primary.icon;
+  const primaryIcon = heroCta.primary.icon;
 
   return (
     <section className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] lg:items-start">
@@ -55,7 +55,7 @@ export function HeroSection({ stats, slots, date }: HeroSectionProps) {
               className="flex items-center gap-2"
             >
               {heroCta.primary.label}
-              <PrimaryIcon className="size-4" />
+              <Icon icon={primaryIcon} className="size-4" />
             </Link>
           </Button>
           <Tooltip>
@@ -80,7 +80,7 @@ export function HeroSection({ stats, slots, date }: HeroSectionProps) {
               ) : null}
               <div className="flex items-center gap-4">
                 <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <stat.icon className="size-6" />
+                  <Icon icon={stat.icon} className="size-6" />
                 </div>
                 <div className="space-y-1">
                   <p className="text-2xl font-semibold tracking-tight">
@@ -129,7 +129,7 @@ export function HeroSection({ stats, slots, date }: HeroSectionProps) {
         </CardContent>
         <CardFooter className="flex flex-col items-start gap-4 border-t border-border/60 pt-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <ShieldCheck className="size-4 text-primary" />
+            <Icon icon="lucide:shield-check" className="size-4 text-primary" />
             <span>Timezone detection and buffers applied automatically</span>
           </div>
           <div className="flex w-full flex-wrap items-center gap-2">
@@ -140,7 +140,7 @@ export function HeroSection({ stats, slots, date }: HeroSectionProps) {
                   size="sm"
                   className="text-muted-foreground"
                 >
-                  <MessageSquare className="size-4" />
+                  <Icon icon="lucide:message-square" className="size-4" />
                   Personalized confirmation email
                 </Button>
               </TooltipTrigger>
@@ -150,7 +150,7 @@ export function HeroSection({ stats, slots, date }: HeroSectionProps) {
             </Tooltip>
             <Button className="ml-auto">
               Confirm meeting
-              <PrimaryIcon className="size-4" />
+              <Icon icon={primaryIcon} className="size-4" />
             </Button>
           </div>
         </CardFooter>

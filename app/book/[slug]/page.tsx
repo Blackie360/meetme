@@ -25,6 +25,9 @@ interface BookingLink {
   description: string | null;
   duration: number;
   userId: string;
+  hostName: string | null;
+  hostEmail: string;
+  hostImage: string | null;
 }
 
 export default function BookingPage({
@@ -82,15 +85,23 @@ export default function BookingPage({
     async function fetchAvailability() {
       setIsLoading(true);
       try {
-        const dateStr = selectedDate.toISOString().split("T")[0];
+        // Format date as YYYY-MM-DD to avoid timezone issues
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+        const day = String(selectedDate.getDate()).padStart(2, "0");
+        const dateStr = `${year}-${month}-${day}`;
+        
         const response = await fetch(
           `/api/availability/${slug}?date=${dateStr}`,
         );
         if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("Availability API error:", errorData);
           setAvailableSlots([]);
           return;
         }
         const data = await response.json();
+        console.log(`Received ${data.availableSlots?.length || 0} slots for ${dateStr}`);
         setAvailableSlots(data.availableSlots || []);
       } catch (error) {
         console.error("Error fetching availability:", error);
@@ -209,12 +220,22 @@ export default function BookingPage({
             <CardContent>
               <div className="flex items-center gap-3">
                 <Avatar>
-                  <AvatarFallback>H</AvatarFallback>
+                  <AvatarImage
+                    src={bookingLink.hostImage ?? undefined}
+                    alt={bookingLink.hostName || bookingLink.hostEmail}
+                  />
+                  <AvatarFallback>
+                    {bookingLink.hostName
+                      ? bookingLink.hostName.charAt(0).toUpperCase()
+                      : bookingLink.hostEmail.charAt(0).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">Host</p>
+                  <p className="text-sm font-medium">
+                    {bookingLink.hostName || "Host"}
+                  </p>
                   <p className="text-sm text-muted-foreground">
-                    Meeting host
+                    {bookingLink.hostEmail}
                   </p>
                 </div>
               </div>

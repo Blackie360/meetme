@@ -1,15 +1,3 @@
-import type { LucideIcon } from "lucide-react";
-import {
-  ArrowRight,
-  BarChart3,
-  CalendarClock,
-  Clock,
-  MessageSquare,
-  ShieldCheck,
-  Users,
-  Wand2,
-} from "lucide-react";
-
 export type NavLink = {
   label: string;
   href: string;
@@ -18,13 +6,13 @@ export type NavLink = {
 export type HeroStat = {
   label: string;
   value: string;
-  icon: LucideIcon;
+  icon: string;
 };
 
 export type Feature = {
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon: string;
   bullets: string[];
 };
 
@@ -61,17 +49,17 @@ export const heroStats: HeroStat[] = [
   {
     label: "Team adoption in 30 days",
     value: "92%",
-    icon: Users,
+    icon: "lucide:users",
   },
   {
     label: "Time saved per rep / week",
     value: "8.5 hrs",
-    icon: Clock,
+    icon: "lucide:clock",
   },
   {
     label: "Meetings booked each month",
     value: "35k+",
-    icon: BarChart3,
+    icon: "lucide:bar-chart-3",
   },
 ];
 
@@ -80,7 +68,7 @@ export const features: Feature[] = [
     title: "Smart availability engine",
     description:
       "Syncs every calendar in real-time and honours buffers, focus time, and personal events automatically.",
-    icon: CalendarClock,
+    icon: "lucide:calendar-clock",
     bullets: [
       "One adaptive link that respects time zones everywhere.",
       "Surface the best slots with round-robin and collective logic.",
@@ -91,7 +79,7 @@ export const features: Feature[] = [
     title: "AI scheduling concierge",
     description:
       "Let MeetMe handle confirmations, reminders, and rescheduling with a human touch.",
-    icon: Wand2,
+    icon: "lucide:wand-2",
     bullets: [
       "Drafts personalized follow-ups and reminders automatically.",
       "Learns guest preferences for meeting formats and locations.",
@@ -102,7 +90,7 @@ export const features: Feature[] = [
     title: "Insights that drive revenue",
     description:
       "Spot patterns that help your team respond faster and close more deals.",
-    icon: BarChart3,
+    icon: "lucide:bar-chart-3",
     bullets: [
       "Real-time dashboards for conversion, show rate, and cycle speed.",
       "Push activities and notes back into your CRM automatically.",
@@ -113,7 +101,7 @@ export const features: Feature[] = [
     title: "Human-friendly routing",
     description:
       "Give every prospect and customer the right host in seconds, no spreadsheets needed.",
-    icon: Users,
+    icon: "lucide:users",
     bullets: [
       "Round-robin, priority, and collective availability out of the box.",
       "Account matching based on owner, territory, or industry.",
@@ -124,7 +112,7 @@ export const features: Feature[] = [
     title: "Enterprise-grade reliability",
     description:
       "Security, privacy, and uptime trusted by global go-to-market teams.",
-    icon: ShieldCheck,
+    icon: "lucide:shield-check",
     bullets: [
       "SOC 2 Type II, GDPR, and HIPAA-ready workflows.",
       "Role-based access with SSO and SCIM provisioning.",
@@ -135,7 +123,7 @@ export const features: Feature[] = [
     title: "Deep collaboration",
     description:
       "Keep every stakeholder aligned from invite to follow-up, automatically.",
-    icon: MessageSquare,
+    icon: "lucide:message-square",
     bullets: [
       "Share notes and agendas in Slack, Notion, or email.",
       "Collect pre-call questions with customizable intake forms.",
@@ -257,7 +245,7 @@ export const heroCta = {
   primary: {
     label: "Start free trial",
     href: "#get-started",
-    icon: ArrowRight,
+    icon: "lucide:arrow-right",
   },
   secondary: {
     label: "Watch live demo",

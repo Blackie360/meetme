@@ -1,18 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
-import { nanoid } from "nanoid";
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
+import { nanoid } from "nanoid";
+import { type NextRequest, NextResponse } from "next/server";
 
-import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { availabilitySettings, bookingLinks } from "@/db/schema";
+import { getServerAuthSession } from "@/lib/auth";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ bookingLinkId: string }> },
 ) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getServerAuthSession();
 
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -69,7 +68,7 @@ export async function POST(
   { params }: { params: Promise<{ bookingLinkId: string }> },
 ) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getServerAuthSession();
 
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ABeeZee, Merriweather, Source_Code_Pro } from "next/font/google";
+import Providers from "./providers";
 import "./globals.css";
 
 const abeeZee = ABeeZee({
@@ -38,7 +39,7 @@ export default function RootLayout({
       <body
         className={`${abeeZee.variable} ${merriweather.variable} ${sourceCodePro.variable} antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

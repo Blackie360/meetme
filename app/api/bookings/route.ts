@@ -1,17 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import { desc, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import { eq, desc } from "drizzle-orm";
-import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 
-import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { bookings, bookingLinks, users } from "@/db/schema";
-import { createCalendarEvent } from "@/lib/google-calendar";
+import { bookingLinks, bookings, users } from "@/db/schema";
+import { getServerAuthSession } from "@/lib/auth";
 import { sendBookingConfirmations } from "@/lib/email";
+import { createCalendarEvent } from "@/lib/google-calendar";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getServerAuthSession();
 
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -96,8 +95,9 @@ export async function POST(request: NextRequest) {
 
     // Create calendar event
     let calendarEventId: string | null = null;
+    let meetingLink: string | undefined;
     try {
-      calendarEventId = await createCalendarEvent(bookingLink.userId, {
+      const calendarResult = await createCalendarEvent(bookingLink.userId, {
         summary: bookingLink.title,
         description: bookingLink.description || undefined,
         startTime: start,
@@ -106,8 +106,23 @@ export async function POST(request: NextRequest) {
         guestName,
         hostEmail: user.email,
       });
+      calendarEventId = calendarResult.eventId;
+      meetingLink = calendarResult.meetingLink;
     } catch (error) {
-      console.error("Error creating calendar event:", error);
+      const err = error as { code?: number; message?: string };
+      // Check if error is due to insufficient scopes
+      const isScopeError =
+        err.code === 403 &&
+        (err.message?.includes("insufficient authentication scopes") ||
+          err.message?.includes("insufficient authentication"));
+
+      if (isScopeError) {
+        console.warn(
+          `Calendar event creation failed due to insufficient scopes for user ${bookingLink.userId}. Booking will be created without calendar event. User should re-authenticate with calendar scope.`,
+        );
+      } else {
+        console.error("Error creating calendar event:", error);
+      }
       // Continue even if calendar event creation fails
     }
 
@@ -139,6 +154,7 @@ export async function POST(request: NextRequest) {
         endTime: end,
         title: bookingLink.title,
         description: bookingLink.description || undefined,
+        meetingLink,
       });
     } catch (error) {
       console.error("Error sending confirmation emails:", error);

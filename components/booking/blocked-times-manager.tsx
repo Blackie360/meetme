@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Icon } from "@iconify/react";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { X } from "lucide-react";
 
 interface BlockedTime {
   id: string;
@@ -43,9 +44,17 @@ export function BlockedTimesManager({
           `/api/blocked-times?bookingLinkId=${bookingLinkId}`,
         );
         if (response.ok) {
-          const data = await response.json();
+          const data: {
+            blockedTimes: Array<
+              Omit<BlockedTime, "startTime" | "endTime"> & {
+                startTime: string;
+                endTime: string;
+              }
+            >;
+          } = await response.json();
+
           setBlockedTimes(
-            data.blockedTimes.map((bt: any) => ({
+            data.blockedTimes.map((bt) => ({
               ...bt,
               startTime: new Date(bt.startTime),
               endTime: new Date(bt.endTime),
@@ -189,7 +198,7 @@ export function BlockedTimesManager({
                   size="sm"
                   onClick={() => handleDelete(block.id)}
                 >
-                  <X className="size-4" />
+                  <Icon icon="lucide:x" className="size-4" />
                 </Button>
               </div>
             ))}

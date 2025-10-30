@@ -118,10 +118,15 @@ export function BookingConfirmationEmail({
 
             {meetingLink && (
               <>
-                <Text style={label}>Meeting Link:</Text>
+                <Text style={label}>Join Google Meet:</Text>
                 <Link href={meetingLink} style={link}>
-                  {meetingLink}
+                  Join Meeting
                 </Link>
+                <Text style={subtle}>
+                  Can&apos;t click the button? Open this URL in your browser:
+                  <br />
+                  <span>{meetingLink}</span>
+                </Text>
               </>
             )}
           </Section>
@@ -140,23 +145,28 @@ export function BookingConfirmationEmail({
 }
 
 const main = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "#f4f8f9",
   fontFamily:
     '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
 };
 
 const container = {
   margin: "0 auto",
-  padding: "20px 0 48px",
-  maxWidth: "560px",
+  padding: "32px 0 56px",
+  maxWidth: "600px",
+  backgroundColor: "#ffffff",
+  borderRadius: "16px",
+  boxShadow: "0 20px 45px rgba(15, 118, 110, 0.1)",
+  border: "1px solid #d9ece9",
 };
 
 const h1 = {
-  color: "#333",
-  fontSize: "24px",
+  color: "#0f766e",
+  fontSize: "26px",
   fontWeight: "bold",
-  margin: "40px 0",
+  margin: "24px 0 12px",
   padding: "0",
+  textAlign: "center" as const,
 };
 
 const section = {
@@ -164,28 +174,43 @@ const section = {
 };
 
 const text = {
-  color: "#333",
-  fontSize: "16px",
+  color: "#1f2933",
+  fontSize: "15px",
   lineHeight: "26px",
   margin: "16px 0",
 };
 
 const label = {
-  color: "#666",
-  fontSize: "14px",
-  fontWeight: "bold",
-  margin: "16px 0 4px",
+  color: "#0f766e",
+  fontSize: "12px",
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase" as const,
+  margin: "24px 0 6px",
 };
 
 const value = {
-  color: "#333",
-  fontSize: "16px",
+  color: "#1f2933",
+  fontSize: "15px",
   lineHeight: "24px",
   margin: "0 0 16px",
 };
 
 const link = {
-  color: "#2754C5",
-  textDecoration: "underline",
+  display: "inline-block",
+  backgroundColor: "#0f766e",
+  color: "#ffffff",
+  fontWeight: 600,
+  padding: "12px 26px",
+  borderRadius: "9999px",
+  textDecoration: "none",
+  marginTop: "8px",
+};
+
+const subtle = {
+  color: "#64748b",
+  fontSize: "13px",
+  margin: "12px 0 0",
+  lineHeight: "20px",
 };
 

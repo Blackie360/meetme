@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -10,6 +10,9 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { signOut, useSession } from "@/lib/auth-client";
@@ -20,7 +23,8 @@ type LandingHeaderProps = {
 };
 
 export function LandingHeader({ navLinks }: LandingHeaderProps) {
-  const { data: session, isPending } = useSession();
+  const { data: session, status } = useSession();
+  const isPending = status === "loading";
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const userDisplayName = useMemo(() => {
@@ -43,7 +47,7 @@ export function LandingHeader({ navLinks }: LandingHeaderProps) {
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
-      await signOut();
+      await signOut({ callbackUrl: "/" });
     } catch (error) {
       console.error("Failed to sign out", error);
     } finally {
@@ -127,18 +131,18 @@ export function LandingHeader({ navLinks }: LandingHeaderProps) {
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="shrink-0">
-                <Menu className="size-5" />
+                <Icon icon="lucide:menu" className="size-5" />
                 <span className="sr-only">Open navigation</span>
               </Button>
             </SheetTrigger>
-            <SheetContent className="w-full max-w-xs px-4 sm:max-w-sm sm:px-6">
-              <div className="flex flex-col gap-6 pt-6">
-                <div className="space-y-1">
-                  <p className="text-lg font-semibold">Menu</p>
-                  <p className="text-sm text-muted-foreground">
-                    Jump to any section or manage your account.
-                  </p>
-                </div>
+            <SheetContent className="w-full max-w-xs sm:max-w-sm">
+              <SheetHeader className="pt-6">
+                <SheetTitle>Navigation menu</SheetTitle>
+                <SheetDescription>
+                  Jump to any section or manage your account.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="flex flex-col gap-6 px-4 pb-6">
                 <nav className="flex flex-col gap-1">
                   {navLinks.map((item) => (
                     <SheetClose asChild key={item.label}>

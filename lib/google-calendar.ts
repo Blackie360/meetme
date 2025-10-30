@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { nanoid } from "nanoid";
 import { eq, and, gte, lte } from "drizzle-orm";
 
 import { db } from "@/db";
@@ -22,12 +23,12 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
  * Get OAuth2 client for Google Calendar API
  */
 function getOAuth2Client() {
+  const nextAuthUrl = process.env.NEXTAUTH_URL ?? process.env.AUTH_URL;
+
   return new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    process.env.BETTER_AUTH_URL
-      ? `${process.env.BETTER_AUTH_URL}/api/auth/callback/google`
-      : undefined,
+    nextAuthUrl ? `${nextAuthUrl}/api/auth/callback/google` : undefined,
   );
 }
 
@@ -162,6 +163,7 @@ export async function getCalendarEvents(
 /**
  * Create a calendar event for a booking
  * Includes both host and guest as attendees and sends updates to both
+ * Returns the event ID and meeting link (if conference data was created)
  */
 export async function createCalendarEvent(
   userId: string,
@@ -182,7 +184,7 @@ export async function createCalendarEvent(
     guestName: string;
     hostEmail?: string;
   },
-): Promise<string> {
+): Promise<{ eventId: string; meetingLink?: string }> {
   try {
     const calendar = await getCalendarClient(userId);
 
@@ -200,6 +202,8 @@ export async function createCalendarEvent(
         displayName: "Host",
       });
     }
+
+    const requestId = `meetme-${nanoid()}`;
 
     const event = {
       summary,
@@ -222,18 +226,65 @@ export async function createCalendarEvent(
       },
     };
 
-    const response = await calendar.events.insert({
-      calendarId: "primary",
-      requestBody: event,
-      conferenceDataVersion: 1,
-      sendUpdates: "all", // Send invites to all attendees
-    });
+    // First, try to create event with conference data (Google Meet link)
+    try {
+      const response = await calendar.events.insert({
+        calendarId: "primary",
+        requestBody: {
+          ...event,
+          conferenceData: {
+            createRequest: {
+              requestId,
+            },
+          },
+        },
+        conferenceDataVersion: 1,
+        sendUpdates: "all", // Send invites to all attendees
+      });
 
-    if (!response.data.id) {
-      throw new Error("Failed to create calendar event");
+      if (!response.data.id) {
+        throw new Error("Failed to create calendar event");
+      }
+
+      // Extract meeting link from conference data
+      const meetingLink =
+        response.data.conferenceData?.entryPoints?.[0]?.uri || undefined;
+
+      return {
+        eventId: response.data.id,
+        meetingLink,
+      };
+    } catch (error: any) {
+      // Check if error is due to insufficient scopes
+      const isScopeError =
+        error?.code === 403 &&
+        (error?.message?.includes("insufficient authentication scopes") ||
+          error?.message?.includes("insufficient authentication"));
+
+      if (isScopeError) {
+        console.warn(
+          "Insufficient scopes for conference data. Creating event without Google Meet link. User may need to re-authenticate with calendar scope.",
+        );
+        // Retry without conference data
+        const response = await calendar.events.insert({
+          calendarId: "primary",
+          requestBody: event,
+          sendUpdates: "all", // Send invites to all attendees
+        });
+
+        if (!response.data.id) {
+          throw new Error("Failed to create calendar event");
+        }
+
+        return {
+          eventId: response.data.id,
+          // No meeting link when created without conference data
+        };
+      }
+
+      // If it's not a scope error, throw the original error
+      throw error;
     }
-
-    return response.data.id;
   } catch (error) {
     console.error("Error creating calendar event:", error);
     throw error;
@@ -268,13 +319,22 @@ export async function checkAvailability(
 
   const startHour = settings?.startHour ?? 9;
   const endHour = settings?.endHour ?? 17;
-  const daysOfWeek = settings
-    ? JSON.parse(settings.daysOfWeek)
-    : [1, 2, 3, 4, 5]; // Default: Monday to Friday
+  let daysOfWeek: number[] = [1, 2, 3, 4, 5]; // Default: Monday to Friday
+  
+  if (settings?.daysOfWeek) {
+    try {
+      daysOfWeek = JSON.parse(settings.daysOfWeek);
+    } catch (error) {
+      console.error("Error parsing daysOfWeek:", error);
+      // Use default if parsing fails
+    }
+  }
 
   // Check if the selected day is in the allowed days of week
+  // JavaScript getDay(): 0=Sunday, 1=Monday, ..., 6=Saturday
   const dayOfWeek = date.getDay();
   if (!daysOfWeek.includes(dayOfWeek)) {
+    console.log(`Day ${dayOfWeek} not in allowed days:`, daysOfWeek);
     return []; // No availability on this day
   }
 
@@ -289,19 +349,27 @@ export async function checkAvailability(
     return [];
   }
 
-  // Get start and end of the day
+  // Get start and end of the day in local timezone
+  // Create dates in local timezone to avoid issues
   const dayStart = new Date(date);
-  dayStart.setHours(startHour, 0, 0, 0);
+  dayStart.setHours(startHour, 0, 0, 0, 0);
 
   const dayEnd = new Date(date);
-  dayEnd.setHours(endHour, 0, 0, 0);
+  dayEnd.setHours(endHour, 0, 0, 0, 0);
 
   // Fetch existing calendar events for this day
-  const existingEvents = await getCalendarEvents(
-    bookingLink.userId,
-    dayStart,
-    dayEnd,
-  );
+  let existingEvents: Array<{ start: Date; end: Date }> = [];
+  try {
+    existingEvents = await getCalendarEvents(
+      bookingLink.userId,
+      dayStart,
+      dayEnd,
+    );
+  } catch (error) {
+    console.error("Error fetching calendar events, continuing without calendar check:", error);
+    // Continue without calendar events - assume calendar is available
+    // This allows bookings even if calendar API fails
+  }
 
   // Fetch blocked times for this booking link that overlap with this day
   const blocked = await db
@@ -361,6 +429,8 @@ export async function checkAvailability(
     // Move to next slot (30-minute intervals)
     currentTime = new Date(currentTime.getTime() + 30 * 60 * 1000);
   }
+
+  console.log(`Found ${slots.length} available slots for ${date.toISOString()} (startHour: ${startHour}, endHour: ${endHour}, dayOfWeek: ${dayOfWeek}, allowedDays: ${daysOfWeek.join(',')})`);
 
   return slots;
 }

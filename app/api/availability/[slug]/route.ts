@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 
 import { db } from "@/db";
 import { bookingLinks } from "@/db/schema";
@@ -34,8 +34,22 @@ export async function GET(
       );
     }
 
-    const date = new Date(dateParam);
-    if (isNaN(date.getTime())) {
+    // Parse date and ensure it's treated as local date (not UTC)
+    // The dateParam is in format YYYY-MM-DD
+    const dateParts = dateParam.split("-");
+    if (dateParts.length !== 3) {
+      return NextResponse.json(
+        { error: "Invalid date format" },
+        { status: 400 },
+      );
+    }
+
+    const year = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10) - 1; // JavaScript months are 0-indexed
+    const day = parseInt(dateParts[2], 10);
+
+    const date = new Date(year, month, day);
+    if (Number.isNaN(date.getTime())) {
       return NextResponse.json({ error: "Invalid date" }, { status: 400 });
     }
 

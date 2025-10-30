@@ -1,4 +1,4 @@
-import { BarChart3 } from "lucide-react";
+import { Icon } from "@iconify/react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,7 +47,7 @@ export function TestimonialsSection({
                 “{testimonial.quote}”
               </p>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <BarChart3 className="size-4 text-primary" />
+                <Icon icon="lucide:bar-chart-3" className="size-4 text-primary" />
                 {testimonial.metric}
               </div>
             </CardContent>
