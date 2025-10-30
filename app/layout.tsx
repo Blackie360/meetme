@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import {
-  ABeeZee,
-  Merriweather,
-  Source_Code_Pro,
-} from "next/font/google";
+import { ABeeZee, Merriweather, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 
 const abeeZee = ABeeZee({
