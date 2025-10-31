@@ -18,10 +18,12 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = session.user!.id;
+
     const links = await db
       .select()
       .from(bookingLinks)
-      .where(eq(bookingLinks.userId, session.user.id))
+      .where(eq(bookingLinks.userId, userId))
       .orderBy(desc(bookingLinks.createdAt));
 
     return NextResponse.json({ links });
@@ -44,6 +46,8 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { title, description, duration, availability, blockedTimes } = body;
+
+    const userId = session.user!.id;
 
     const normalizedTitle = typeof title === "string" ? title.trim() : "";
 
@@ -169,7 +173,7 @@ export async function POST(request: NextRequest) {
         .insert(bookingLinks)
         .values({
           id: nanoid(),
-          userId: session.user.id,
+          userId,
           slug,
           title: normalizedTitle,
           description:
@@ -228,6 +232,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = session.user!.id;
+
     const body = await request.json();
     const { id, isActive } = body ?? {};
 
@@ -244,7 +250,7 @@ export async function PATCH(request: NextRequest) {
       .where(eq(bookingLinks.id, id))
       .limit(1);
 
-    if (!bookingLink || bookingLink.userId !== session.user.id) {
+    if (!bookingLink || bookingLink.userId !== userId) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
@@ -276,6 +282,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = session.user!.id;
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -292,7 +300,7 @@ export async function DELETE(request: NextRequest) {
       .where(eq(bookingLinks.id, id))
       .limit(1);
 
-    if (!bookingLink || bookingLink.userId !== session.user.id) {
+    if (!bookingLink || bookingLink.userId !== userId) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 

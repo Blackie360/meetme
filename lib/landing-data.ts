@@ -48,17 +48,17 @@ export const heroSlots = ["9:00 AM", "10:30 AM", "1:00 PM", "3:30 PM"];
 export const heroStats: HeroStat[] = [
   {
     label: "Team adoption in 30 days",
-    value: "92%",
+    value: "20%",
     icon: "lucide:users",
   },
   {
     label: "Time saved per rep / week",
-    value: "8.5 hrs",
+    value: "3.5 hrs",
     icon: "lucide:clock",
   },
   {
     label: "Meetings booked each month",
-    value: "35k+",
+    value: "3",
     icon: "lucide:bar-chart-3",
   },
 ];

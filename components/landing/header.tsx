@@ -26,23 +26,24 @@ export function LandingHeader({ navLinks }: LandingHeaderProps) {
   const { data: session, status } = useSession();
   const isPending = status === "loading";
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const user = session?.user;
 
   const userDisplayName = useMemo(() => {
-    if (!session?.user) {
+    if (!user) {
       return null;
     }
 
-    return session.user.name || session.user.email || "User";
-  }, [session?.user]);
+    return user.name || user.email || "User";
+  }, [user]);
 
   const userInitial = useMemo(() => {
-    if (!session?.user) {
+    if (!user) {
       return "?";
     }
 
-    const source = session.user.name || session.user.email || "?";
+    const source = user.name || user.email || "?";
     return source.substring(0, 1).toUpperCase();
-  }, [session?.user]);
+  }, [user]);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -55,7 +56,7 @@ export function LandingHeader({ navLinks }: LandingHeaderProps) {
     }
   };
 
-  const isAuthenticated = !!session?.user;
+  const isAuthenticated = !!user;
 
   return (
     <header className="border-b border-border/60 bg-background/80 backdrop-blur">
@@ -88,7 +89,7 @@ export function LandingHeader({ navLinks }: LandingHeaderProps) {
               <div className="flex items-center gap-3 rounded-full border border-border/70 bg-background/60 px-3 py-1.5">
                 <Avatar className="size-8">
                   <AvatarImage
-                    src={session.user.image ?? undefined}
+                    src={user?.image ?? undefined}
                     alt={userDisplayName ?? "User avatar"}
                   />
                   <AvatarFallback>{userInitial}</AvatarFallback>
@@ -97,9 +98,9 @@ export function LandingHeader({ navLinks }: LandingHeaderProps) {
                   <span className="text-sm font-medium leading-tight">
                     {userDisplayName}
                   </span>
-                  {session.user.email ? (
+                  {user?.email ? (
                     <span className="text-xs text-muted-foreground leading-tight">
-                      {session.user.email}
+                      {user.email}
                     </span>
                   ) : null}
                 </div>
@@ -165,7 +166,7 @@ export function LandingHeader({ navLinks }: LandingHeaderProps) {
                     <div className="flex items-center gap-3">
                       <Avatar className="size-10">
                         <AvatarImage
-                          src={session.user.image ?? undefined}
+                          src={user?.image ?? undefined}
                           alt={userDisplayName ?? "User avatar"}
                         />
                         <AvatarFallback>{userInitial}</AvatarFallback>
@@ -174,9 +175,9 @@ export function LandingHeader({ navLinks }: LandingHeaderProps) {
                         <span className="font-medium leading-tight">
                           {userDisplayName}
                         </span>
-                        {session.user.email ? (
+                        {user?.email ? (
                           <span className="text-sm text-muted-foreground leading-tight">
-                            {session.user.email}
+                            {user.email}
                           </span>
                         ) : null}
                       </div>

@@ -80,15 +80,17 @@ export default function BookingPage({
 
   // Fetch available slots when date changes
   useEffect(() => {
-    if (!bookingLink || !selectedDate || !slug) return;
+    const currentDate = selectedDate;
 
-    async function fetchAvailability() {
+    if (!bookingLink || !currentDate || !slug) return;
+
+    async function fetchAvailability(date: Date) {
       setIsLoading(true);
       try {
         // Format date as YYYY-MM-DD to avoid timezone issues
-        const year = selectedDate.getFullYear();
-        const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
-        const day = String(selectedDate.getDate()).padStart(2, "0");
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
         const dateStr = `${year}-${month}-${day}`;
         
         const response = await fetch(
@@ -111,7 +113,7 @@ export default function BookingPage({
       }
     }
 
-    fetchAvailability();
+    fetchAvailability(currentDate);
   }, [bookingLink, selectedDate, slug]);
 
   const handleSubmit = async (e: React.FormEvent) => {

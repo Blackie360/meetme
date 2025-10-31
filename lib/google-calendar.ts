@@ -352,10 +352,10 @@ export async function checkAvailability(
   // Get start and end of the day in local timezone
   // Create dates in local timezone to avoid issues
   const dayStart = new Date(date);
-  dayStart.setHours(startHour, 0, 0, 0, 0);
+  dayStart.setHours(startHour, 0, 0, 0);
 
   const dayEnd = new Date(date);
-  dayEnd.setHours(endHour, 0, 0, 0, 0);
+  dayEnd.setHours(endHour, 0, 0, 0);
 
   // Fetch existing calendar events for this day
   let existingEvents: Array<{ start: Date; end: Date }> = [];

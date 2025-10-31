@@ -19,8 +19,8 @@ async function checkAccountScope() {
         id: accounts.id,
         providerId: accounts.providerId,
         scope: accounts.scope,
-        hasAccessToken: accounts.accessToken !== null,
-        hasRefreshToken: accounts.refreshToken !== null,
+        accessToken: accounts.accessToken,
+        refreshToken: accounts.refreshToken,
       })
       .from(accounts)
       .where(eq(accounts.userId, userId));
@@ -34,12 +34,15 @@ async function checkAccountScope() {
     console.log(`Found ${userAccounts.length} account(s):\n`);
     
     userAccounts.forEach((account, index) => {
+      const hasAccessToken = account.accessToken !== null;
+      const hasRefreshToken = account.refreshToken !== null;
+
       console.log(`Account ${index + 1}:`);
       console.log(`  ID: ${account.id}`);
       console.log(`  Provider: ${account.providerId}`);
       console.log(`  Scope: ${account.scope || "null"}`);
-      console.log(`  Has Access Token: ${account.hasAccessToken}`);
-      console.log(`  Has Refresh Token: ${account.hasRefreshToken}`);
+      console.log(`  Has Access Token: ${hasAccessToken}`);
+      console.log(`  Has Refresh Token: ${hasRefreshToken}`);
       
       if (account.scope) {
         const scopes = account.scope.split(" ");
