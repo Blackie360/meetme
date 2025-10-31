@@ -40,7 +40,7 @@ export function CtaSection() {
             <Button
               variant="outline"
               asChild
-              className="border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10"
+              className="border-primary-foreground/50 bg-primary/25 text-primary-foreground hover:bg-primary/35 hover:text-primary-foreground"
             >
               <Link href="/demo">Talk to sales</Link>
             </Button>
