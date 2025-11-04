@@ -30,7 +30,7 @@ type UpsertGoogleAccountParams = {
     providerAccountId: string;
     access_token?: string | null;
     refresh_token?: string | null;
-    scope?: string | null;
+    scope?: stwring | null;
     id_token?: string | null;
     expires_at?: number | null;
   };
