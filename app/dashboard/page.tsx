@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { Icon } from "@iconify/react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
 import { signOut, useSession } from "@/lib/auth-client";
 import { AvailabilitySettings } from "@/components/booking/availability-settings";
@@ -105,6 +116,8 @@ export default function DashboardPage() {
   const [linkActionError, setLinkActionError] = useState<string | null>(null);
   const [updatingLinkId, setUpdatingLinkId] = useState<string | null>(null);
   const [deletingLinkId, setDeletingLinkId] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!isPending && !session?.user) {
@@ -118,6 +131,19 @@ export default function DashboardPage() {
       fetchBookings();
     }
   }, [session?.user]);
+
+  // Keyboard shortcut for search (Cmd+K or Ctrl+K)
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   const fetchBookingLinks = async () => {
     setIsLoadingLinks(true);
@@ -350,6 +376,9 @@ export default function DashboardPage() {
   const copyBookingLink = (slug: string) => {
     const url = `${window.location.origin}/book/${slug}`;
     navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard!", {
+      description: url,
+    });
   };
 
   const userDisplayName = useMemo(() => {
@@ -366,6 +395,52 @@ export default function DashboardPage() {
     const source = session.user.name || session.user.email || "?";
     return source.substring(0, 1).toUpperCase();
   }, [session?.user]);
+
+  // Filter bookings into upcoming and past
+  const { upcomingBookings, pastBookings } = useMemo(() => {
+    const now = new Date();
+    const upcoming = bookings.filter(
+      (booking) => new Date(booking.startTime) >= now,
+    );
+    const past = bookings.filter(
+      (booking) => new Date(booking.startTime) < now,
+    );
+    return { upcomingBookings: upcoming, pastBookings: past };
+  }, [bookings]);
+
+  // Filter search results
+  const filteredBookingLinks = useMemo(() => {
+    if (!searchQuery) return bookingLinks;
+    const query = searchQuery.toLowerCase();
+    return bookingLinks.filter(
+      (link) =>
+        link.title.toLowerCase().includes(query) ||
+        link.description?.toLowerCase().includes(query) ||
+        link.slug.toLowerCase().includes(query),
+    );
+  }, [bookingLinks, searchQuery]);
+
+  const filteredUpcomingBookings = useMemo(() => {
+    if (!searchQuery) return upcomingBookings;
+    const query = searchQuery.toLowerCase();
+    return upcomingBookings.filter(
+      (booking) =>
+        booking.title.toLowerCase().includes(query) ||
+        booking.guestName.toLowerCase().includes(query) ||
+        booking.guestEmail.toLowerCase().includes(query),
+    );
+  }, [upcomingBookings, searchQuery]);
+
+  const filteredPastBookings = useMemo(() => {
+    if (!searchQuery) return pastBookings;
+    const query = searchQuery.toLowerCase();
+    return pastBookings.filter(
+      (booking) =>
+        booking.title.toLowerCase().includes(query) ||
+        booking.guestName.toLowerCase().includes(query) ||
+        booking.guestEmail.toLowerCase().includes(query),
+    );
+  }, [pastBookings, searchQuery]);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -428,6 +503,25 @@ export default function DashboardPage() {
                 ) : null}
               </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSearchOpen(true)}
+              className="w-full sm:w-auto"
+            >
+              <Icon icon="lucide:search" className="mr-2 size-4" />
+              Search
+              <KbdGroup className="ml-2 hidden sm:inline-flex">
+                <Kbd>
+                  {typeof window !== "undefined" &&
+                  (navigator.platform.toUpperCase().indexOf("MAC") >= 0 ||
+                    navigator.userAgent.toUpperCase().indexOf("MAC") >= 0)
+                    ? "⌘"
+                    : "Ctrl"}
+                </Kbd>
+                <Kbd>K</Kbd>
+              </KbdGroup>
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -903,13 +997,13 @@ export default function DashboardPage() {
           <CardContent>
             {isLoadingBookings ? (
               <p className="text-sm text-muted-foreground">Loading...</p>
-            ) : bookings.length === 0 ? (
+            ) : upcomingBookings.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No upcoming bookings yet.
               </p>
             ) : (
               <div className="space-y-4">
-                {bookings.map((booking) => (
+                {upcomingBookings.map((booking) => (
                   <div
                     key={booking.id}
                     className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-start sm:justify-between"
@@ -934,7 +1028,141 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Past Meetings */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Past Meetings</CardTitle>
+            <CardDescription>
+              Your completed meetings and appointments
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoadingBookings ? (
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            ) : pastBookings.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No past meetings yet.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {pastBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-start sm:justify-between"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold">{booking.title}</h3>
+                        <Badge variant="outline">{booking.status}</Badge>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        With: {booking.guestName} ({booking.guestEmail})
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        <Icon icon="lucide:calendar" className="mr-1 inline size-4" />
+                        {format(new Date(booking.startTime), "PPP 'at' p")} -{" "}
+                        {format(new Date(booking.endTime), "p")}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
+
+      {/* Search Command Dialog */}
+      <CommandDialog
+        open={searchOpen}
+        onOpenChange={(open) => {
+          setSearchOpen(open);
+          if (!open) {
+            setSearchQuery("");
+          }
+        }}
+      >
+        <CommandInput
+          placeholder="Search booking links, meetings, guests..."
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+        />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          {filteredBookingLinks.length > 0 && (
+            <>
+              <CommandGroup heading="Booking Links">
+                {filteredBookingLinks.map((link) => (
+                  <CommandItem
+                    key={link.id}
+                    onSelect={() => {
+                      const url = `${window.location.origin}/book/${link.slug}`;
+                      navigator.clipboard.writeText(url);
+                      toast.success("Link copied!", {
+                        description: url,
+                      });
+                      setSearchOpen(false);
+                      setSearchQuery("");
+                    }}
+                  >
+                    <Icon icon="lucide:link" className="mr-2 size-4" />
+                    <span>{link.title}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {link.slug}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </>
+          )}
+          {filteredUpcomingBookings.length > 0 && (
+            <>
+              {filteredBookingLinks.length > 0 && <CommandSeparator />}
+              <CommandGroup heading="Upcoming Bookings">
+                {filteredUpcomingBookings.map((booking) => (
+                  <CommandItem
+                    key={booking.id}
+                    onSelect={() => {
+                      setSearchOpen(false);
+                      setSearchQuery("");
+                    }}
+                  >
+                    <Icon icon="lucide:calendar" className="mr-2 size-4" />
+                    <span>{booking.title}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {booking.guestName}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </>
+          )}
+          {filteredPastBookings.length > 0 && (
+            <>
+              {(filteredBookingLinks.length > 0 ||
+                filteredUpcomingBookings.length > 0) && <CommandSeparator />}
+              <CommandGroup heading="Past Meetings">
+                {filteredPastBookings.map((booking) => (
+                  <CommandItem
+                    key={booking.id}
+                    onSelect={() => {
+                      setSearchOpen(false);
+                      setSearchQuery("");
+                    }}
+                  >
+                    <Icon icon="lucide:history" className="mr-2 size-4" />
+                    <span>{booking.title}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {booking.guestName}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </>
+          )}
+        </CommandList>
+      </CommandDialog>
     </div>
   );
 }
