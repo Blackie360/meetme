@@ -360,7 +360,7 @@ export async function checkAvailability(
   }
 
   // Get start and end of the day using the normalized date
-  // Use the same year, month, day to ensure consistency
+  
   const dayStart = new Date(year, month, day, startHour, 0, 0, 0);
   const dayEnd = new Date(year, month, day, endHour, 0, 0, 0);
 

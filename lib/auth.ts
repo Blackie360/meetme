@@ -25,12 +25,6 @@ if (!authSecret) {
   );
 }
 
-if (!nextAuthUrl) {
-  console.warn(
-    "⚠️  NEXTAUTH_URL (or AUTH_URL) is not set. This may cause OAuth callback errors.",
-    "Please set NEXTAUTH_URL in your environment variables (e.g., http://localhost:3000 for development).",
-  );
-}
 
 type UpsertGoogleAccountParams = {
   account: {
