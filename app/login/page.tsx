@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   Default: "An authentication error occurred. Please try again.",
 };
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -95,5 +95,31 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background px-4 py-16 text-foreground">
+          <Card className="w-full max-w-md border-border/60">
+            <CardHeader className="space-y-2 text-center">
+              <CardTitle className="text-2xl">Sign in to MeetMe</CardTitle>
+              <CardDescription className="text-base text-muted-foreground">
+                Use your Google account to continue.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <Button disabled size="lg">
+                Loading...
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
