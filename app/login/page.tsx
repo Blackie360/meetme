@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,10 +13,33 @@ import {
 } from "@/components/ui/card";
 import { signIn } from "@/lib/auth-client";
 
+const ERROR_MESSAGES: Record<string, string> = {
+  OAuthCallback: "OAuth callback error. Please check your Google OAuth configuration and ensure the callback URL matches your Google Cloud Console settings.",
+  Configuration: "Authentication configuration error. Please check your environment variables.",
+  AccessDenied: "Access denied. Please grant the required permissions.",
+  Verification: "Email verification error. Please try again.",
+  Default: "An authentication error occurred. Please try again.",
+};
+
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Read error from URL query parameters
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      const errorMessage = ERROR_MESSAGES[errorParam] || ERROR_MESSAGES.Default;
+      setError(errorMessage);
+      // Clean up the URL by removing the error parameter
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete("error");
+      newUrl.searchParams.delete("callbackUrl");
+      window.history.replaceState({}, "", newUrl.toString());
+    }
+  }, [searchParams]);
 
   const handleSignIn = async () => {
     setError(null);

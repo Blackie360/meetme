@@ -319,6 +319,7 @@ export async function checkAvailability(
 
   const startHour = settings?.startHour ?? 9;
   const endHour = settings?.endHour ?? 17;
+  const timezone = settings?.timezone ?? "UTC";
   let daysOfWeek: number[] = [1, 2, 3, 4, 5]; // Default: Monday to Friday
   
   if (settings?.daysOfWeek) {
@@ -330,11 +331,20 @@ export async function checkAvailability(
     }
   }
 
-  // Check if the selected day is in the allowed days of week
-  // JavaScript getDay(): 0=Sunday, 1=Monday, ..., 6=Saturday
-  const dayOfWeek = date.getDay();
+  // Get the day of week from the date
+  // Extract year, month, day from the date and create a normalized date at noon
+  // to avoid DST and timezone edge cases
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  
+  // Create a date at noon to avoid timezone edge cases
+  const normalizedDate = new Date(year, month, day, 12, 0, 0, 0);
+  const dayOfWeek = normalizedDate.getDay();
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  
   if (!daysOfWeek.includes(dayOfWeek)) {
-    console.log(`Day ${dayOfWeek} not in allowed days:`, daysOfWeek);
+    console.log(`Day ${dayOfWeek} (${dayNames[dayOfWeek]}) not in allowed days: [${daysOfWeek.map(d => dayNames[d]).join(', ')}]`);
     return []; // No availability on this day
   }
 
@@ -349,13 +359,10 @@ export async function checkAvailability(
     return [];
   }
 
-  // Get start and end of the day in local timezone
-  // Create dates in local timezone to avoid issues
-  const dayStart = new Date(date);
-  dayStart.setHours(startHour, 0, 0, 0);
-
-  const dayEnd = new Date(date);
-  dayEnd.setHours(endHour, 0, 0, 0);
+  // Get start and end of the day using the normalized date
+  // Use the same year, month, day to ensure consistency
+  const dayStart = new Date(year, month, day, startHour, 0, 0, 0);
+  const dayEnd = new Date(year, month, day, endHour, 0, 0, 0);
 
   // Fetch existing calendar events for this day
   let existingEvents: Array<{ start: Date; end: Date }> = [];
@@ -430,7 +437,7 @@ export async function checkAvailability(
     currentTime = new Date(currentTime.getTime() + 30 * 60 * 1000);
   }
 
-  console.log(`Found ${slots.length} available slots for ${date.toISOString()} (startHour: ${startHour}, endHour: ${endHour}, dayOfWeek: ${dayOfWeek}, allowedDays: ${daysOfWeek.join(',')})`);
+  console.log(`Found ${slots.length} available slots for ${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} (${dayNames[dayOfWeek]}) - startHour: ${startHour}, endHour: ${endHour}, allowedDays: [${daysOfWeek.map(d => dayNames[d]).join(', ')}]`);
 
   return slots;
 }

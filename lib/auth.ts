@@ -11,6 +11,7 @@ import { accounts, users } from "@/db/schema";
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+const nextAuthUrl = process.env.NEXTAUTH_URL ?? process.env.AUTH_URL;
 
 if (!googleClientId || !googleClientSecret) {
   throw new Error(
@@ -21,6 +22,13 @@ if (!googleClientId || !googleClientSecret) {
 if (!authSecret) {
   throw new Error(
     "Auth secret is not configured. Please set AUTH_SECRET (or NEXTAUTH_SECRET) for NextAuth.js.",
+  );
+}
+
+if (!nextAuthUrl) {
+  console.warn(
+    "⚠️  NEXTAUTH_URL (or AUTH_URL) is not set. This may cause OAuth callback errors.",
+    "Please set NEXTAUTH_URL in your environment variables (e.g., http://localhost:3000 for development).",
   );
 }
 
