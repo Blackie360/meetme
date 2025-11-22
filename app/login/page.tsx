@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Icon } from "@iconify/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -85,7 +86,17 @@ function LoginForm() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <Button onClick={handleSignIn} disabled={isLoading} size="lg">
-            {isLoading ? "Redirecting…" : "Continue with Google"}
+            {isLoading ? (
+              <>
+                <Icon icon="lucide:loader-2" className="size-5 animate-spin" />
+                Redirecting…
+              </>
+            ) : (
+              <>
+                <Icon icon="devicon:google" className="size-5" />
+                Continue with Google
+              </>
+            )}
           </Button>
           {error ? (
             <p className="text-sm text-destructive" role="alert">
