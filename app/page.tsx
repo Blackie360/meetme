@@ -6,7 +6,6 @@ import { FeaturesSection } from "@/components/landing/features-section";
 import { GrainOverlay } from "@/components/landing/grain-overlay";
 import { HeroSection } from "@/components/landing/hero-section";
 import { LandingHeader } from "@/components/landing/header";
-import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { WorkflowsSection } from "@/components/landing/workflows-section";
 import { getServerAuthSession } from "@/lib/auth";
 import {
@@ -16,7 +15,6 @@ import {
   heroSlots,
   heroStats,
   navLinks,
-  testimonials,
   workflows,
 } from "@/lib/landing-data";
 
@@ -41,7 +39,6 @@ export default async function Home() {
           />
           <FeaturesSection features={features} />
           <WorkflowsSection workflows={workflows} />
-          <TestimonialsSection testimonials={testimonials} />
           <FaqSection faqs={faqs} />
           <CtaSection />
         </main>

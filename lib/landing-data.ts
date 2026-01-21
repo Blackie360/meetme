@@ -28,14 +28,6 @@ export type Workflow = {
   bullets: string[];
 };
 
-export type Testimonial = {
-  name: string;
-  role: string;
-  initials: string;
-  quote: string;
-  metric: string;
-};
-
 export type Faq = {
   question: string;
   answer: string;
@@ -76,7 +68,7 @@ export const features: Feature[] = [
     ],
   },
   {
-    title: "AI scheduling concierge",
+    title: "AI scheduling concierge (coming soon)",
     description:
       "Let MeetMe handle confirmations, reminders, and rescheduling with a human touch.",
     icon: "lucide:wand-2",
@@ -183,33 +175,6 @@ export const workflows: Workflow[] = [
   },
 ];
 
-export const testimonials: Testimonial[] = [
-  {
-    name: "Maya Chen",
-    role: "Head of Revenue · Orbitly",
-    initials: "MC",
-    quote:
-      "MeetMe replaced our manual routing spreadsheets and cut speed-to-lead from hours to minutes.",
-    metric: "340% increase in meetings booked",
-  },
-  {
-    name: "Luis Romero",
-    role: "Director of CS · Cascade",
-    initials: "LR",
-    quote:
-      "Automated QBR cadences freed every CSM from calendar Tetris and kept exec sponsors engaged.",
-    metric: "98% of renewals now include an executive touchpoint",
-  },
-  {
-    name: "Isha Patel",
-    role: "Talent Lead · Northwind",
-    initials: "IP",
-    quote:
-      "Candidates rave about the experience. Interviewers just show up prepared thanks to the smart briefs.",
-    metric: "65% less time spent coordinating interviews",
-  },
-];
-
 export const faqs: Faq[] = [
   {
     question: "Does MeetMe connect to multiple calendars per user?",
@@ -236,7 +201,6 @@ export const faqs: Faq[] = [
 export const navLinks: NavLink[] = [
   { label: "Product", href: "#features" },
   { label: "Workflows", href: "#workflows" },
-  { label: "Customers", href: "#customers" },
   { label: "Pricing", href: "#get-started" },
   { label: "Resources", href: "#faq" },
 ];
@@ -249,5 +213,6 @@ export const heroCta = {
   },
   secondary: {
     label: "Watch live demo",
+    href: "https://meetme.blackie.tech/book/ij5cn-3rvw",
   },
 };

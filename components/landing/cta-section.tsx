@@ -35,14 +35,14 @@ export function CtaSection() {
               asChild
               className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
             >
-              <Link href="/signup">Create your link</Link>
+              <Link href="/login">Create your link</Link>
             </Button>
             <Button
               variant="outline"
               asChild
               className="border-primary-foreground/50 bg-primary/25 text-primary-foreground hover:bg-primary/35 hover:text-primary-foreground"
             >
-              <Link href="/demo">Talk to sales</Link>
+              <Link href="/book/ij5cn-3rvw">Talk to sales</Link>
             </Button>
           </div>
         </CardContent>

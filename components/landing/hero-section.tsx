@@ -60,8 +60,15 @@ export function HeroSection({ stats, slots, date }: HeroSectionProps) {
           </Button>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="lg">
-                {heroCta.secondary.label}
+              <Button variant="outline" size="lg" asChild>
+                <Link
+                  href={heroCta.secondary.href}
+                  className="flex items-center gap-2"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {heroCta.secondary.label}
+                </Link>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">
@@ -121,8 +128,8 @@ export function HeroSection({ stats, slots, date }: HeroSectionProps) {
           />
           <div className="grid gap-3 sm:grid-cols-2">
             {slots.map((slot) => (
-              <Button key={slot} variant="outline" className="justify-center">
-                {slot}
+              <Button key={slot} variant="outline" className="justify-center" asChild>
+                <Link href="/book/ij5cn-3rvw">{slot}</Link>
               </Button>
             ))}
           </div>
@@ -139,18 +146,23 @@ export function HeroSection({ stats, slots, date }: HeroSectionProps) {
                   variant="ghost"
                   size="sm"
                   className="text-muted-foreground"
+                  asChild
                 >
-                  <Icon icon="lucide:message-square" className="size-4" />
-                  Personalized confirmation email
+                  <Link href="/book/ij5cn-3rvw">
+                    <Icon icon="lucide:message-square" className="size-4" />
+                    Personalized confirmation email
+                  </Link>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
                 Agenda, prep notes, and reminders included.
               </TooltipContent>
             </Tooltip>
-            <Button className="ml-auto">
-              Confirm meeting
-              <Icon icon={primaryIcon} className="size-4" />
+            <Button className="ml-auto" asChild>
+              <Link href="/book/ij5cn-3rvw">
+                Confirm meeting
+                <Icon icon={primaryIcon} className="size-4" />
+              </Link>
             </Button>
           </div>
         </CardFooter>
